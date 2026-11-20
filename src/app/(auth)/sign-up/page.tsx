@@ -4,6 +4,7 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
+import GoogleAuthButton from "@/components/auth/google-auth-button";
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -132,6 +133,7 @@ export default function SignUpPage() {
         >
           {loading ? "Creating account..." : "Create Account"}
         </button>
+        <GoogleAuthButton/>
       </form>
     </main>
   );

@@ -5,6 +5,7 @@ import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
+import GoogleAuthButton from "@/components/auth/google-auth-button";
 
 export default function SignInPage() {
   const router = useRouter();
@@ -41,23 +42,6 @@ export default function SignInPage() {
     }
   };
 
-
-  // Google sign-in
-
-  const handleGoogleSignIn = async () => {
-    setError("");
-    setLoading(true);
-
-    try {
-      await authClient.signIn.social({
-        provider: "google",
-        callbackURL: "/",
-      });
-    } catch {
-      setError("Unable to continue with Google.");
-      setLoading(false);
-    }
-  };
 
   return (
     <main className="flex min-h-screen items-center justify-center p-6">
@@ -117,14 +101,7 @@ export default function SignInPage() {
         </button>
 
         {/* google */}
-        <button
-          type="button"
-          onClick={handleGoogleSignIn}
-          disabled={loading}
-          className="w-full rounded-md border p-3 font-medium disabled:opacity-50"
-        >
-          Continue with Google
-        </button>
+        <GoogleAuthButton/>
 
         <p className="text-center text-sm text-gray-500">
           Don&apos;t have an account?{" "}
