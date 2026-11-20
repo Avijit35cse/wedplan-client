@@ -14,7 +14,7 @@ export default function GoogleAuthButton() {
     try {
       await authClient.signIn.social({
         provider: "google",
-        callbackURL: "/",
+        callbackURL: "/auth/redirect",
       });
     } catch {
       setError("Unable to continue with Google.");
