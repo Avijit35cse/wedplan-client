@@ -14,6 +14,7 @@ export default function SignInPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+
   const handleSignIn = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
@@ -36,6 +37,24 @@ export default function SignInPage() {
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {
+      setLoading(false);
+    }
+  };
+
+
+  // Google sign-in
+
+  const handleGoogleSignIn = async () => {
+    setError("");
+    setLoading(true);
+
+    try {
+      await authClient.signIn.social({
+        provider: "google",
+        callbackURL: "/",
+      });
+    } catch {
+      setError("Unable to continue with Google.");
       setLoading(false);
     }
   };
@@ -95,6 +114,16 @@ export default function SignInPage() {
           className="w-full rounded-md bg-black p-3 font-medium text-white disabled:opacity-50"
         >
           {loading ? "Signing in..." : "Sign In"}
+        </button>
+
+        {/* google */}
+        <button
+          type="button"
+          onClick={handleGoogleSignIn}
+          disabled={loading}
+          className="w-full rounded-md border p-3 font-medium disabled:opacity-50"
+        >
+          Continue with Google
         </button>
 
         <p className="text-center text-sm text-gray-500">
