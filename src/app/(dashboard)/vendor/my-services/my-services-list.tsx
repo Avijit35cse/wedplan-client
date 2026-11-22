@@ -46,7 +46,7 @@ export default function MyServicesList({ services }: { services: Service[] }) {
   if (services.length === 0) {
     return (
       <div className="rounded-xl border bg-white p-8 text-center">
-        You haven't added any services yet.
+        You haven’t added any services yet.
       </div>
     );
   }

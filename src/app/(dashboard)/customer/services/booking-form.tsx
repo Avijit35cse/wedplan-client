@@ -2,6 +2,7 @@
 "use client";
 
 import { useState } from "react";
+import { CalendarDays, MapPin, MessageSquare, Send } from "lucide-react";
 import { createBooking } from "./booking-actions";
 
 export default function BookingForm({
@@ -27,50 +28,77 @@ export default function BookingForm({
   }
 
   return (
-    <form action={handleSubmit} className="mt-4 space-y-3">
+    <form action={handleSubmit} className="space-y-4">
       <input type="hidden" name="serviceId" value={serviceId} />
 
-      <label className="block text-sm font-medium">
-        Event Date
-      </label>
-      <input
-        type="date"
-        name="eventDate"
-        min={new Date().toISOString().split("T")[0]}
-        required
-        className="w-full rounded-lg border px-3 py-2"
-      />
+      <div>
+        <label
+          htmlFor={`event-date-${serviceId}`}
+          className="mb-2 flex items-center gap-2 text-xs font-semibold text-ink"
+        >
+          <CalendarDays className="size-3.5 text-gold" />
+          Event date
+        </label>
+        <input
+          id={`event-date-${serviceId}`}
+          type="date"
+          name="eventDate"
+          min={new Date().toISOString().split("T")[0]}
+          required
+          className="h-12 w-full rounded-xl border border-line bg-white px-4 text-sm text-ink outline-none transition focus:border-gold focus:ring-2 focus:ring-gold/10"
+        />
+      </div>
 
-      <label className="block text-sm font-medium">
-        Event Location
-      </label>
-      <input
-        type="text"
-        name="eventLocation"
-        placeholder="Enter event location"
-        required
-        className="w-full rounded-lg border px-3 py-2"
-      />
+      <div>
+        <label
+          htmlFor={`event-location-${serviceId}`}
+          className="mb-2 flex items-center gap-2 text-xs font-semibold text-ink"
+        >
+          <MapPin className="size-3.5 text-gold" />
+          Event location
+        </label>
+        <input
+          id={`event-location-${serviceId}`}
+          type="text"
+          name="eventLocation"
+          placeholder="Where will your event take place?"
+          required
+          className="h-12 w-full rounded-xl border border-line bg-white px-4 text-sm text-ink outline-none transition placeholder:text-ink-muted/60 focus:border-gold focus:ring-2 focus:ring-gold/10"
+        />
+      </div>
 
-      <label className="block text-sm font-medium">
-        Message (Optional)
-      </label>
-      <textarea
-        name="message"
-        placeholder="Tell the vendor about your event..."
-        className="w-full rounded-lg border px-3 py-2"
-      />
+      <div>
+        <label
+          htmlFor={`booking-message-${serviceId}`}
+          className="mb-2 flex items-center gap-2 text-xs font-semibold text-ink"
+        >
+          <MessageSquare className="size-3.5 text-gold" />
+          Message
+          <span className="font-normal text-ink-muted">(Optional)</span>
+        </label>
+        <textarea
+          id={`booking-message-${serviceId}`}
+          name="message"
+          rows={3}
+          placeholder="Tell the vendor a little about your event..."
+          className="w-full resize-y rounded-xl border border-line bg-white px-4 py-3 text-sm text-ink outline-none transition placeholder:text-ink-muted/60 focus:border-gold focus:ring-2 focus:ring-gold/10"
+        />
+      </div>
 
       <button
         type="submit"
         disabled={loading}
-        className="w-full rounded-lg bg-black px-4 py-2 text-white disabled:opacity-50"
+        className="flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-rose px-5 py-3 text-xs font-semibold tracking-[0.12em] text-white uppercase transition hover:bg-ink disabled:cursor-not-allowed disabled:opacity-50"
       >
-        {loading ? "Submitting..." : "Request Booking"}
+        <Send className="size-3.5" />
+        {loading ? "Submitting..." : "Send booking request"}
       </button>
 
       {message && (
-        <p className="text-sm" role="status">
+        <p
+          className="rounded-xl border border-line bg-ivory p-3 text-sm leading-6 text-ink"
+          role="status"
+        >
           {message}
         </p>
       )}

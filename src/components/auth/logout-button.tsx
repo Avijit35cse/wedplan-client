@@ -1,11 +1,18 @@
-    
 "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { LogOut } from "lucide-react";
 import { signOut } from "@/lib/auth-client";
+import { cn } from "@/lib/utils";
 
-export default function LogoutButton() {
+export default function LogoutButton({
+  className,
+  showIcon = false,
+}: {
+  className?: string;
+  showIcon?: boolean;
+}) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
@@ -23,11 +30,16 @@ export default function LogoutButton() {
 
   return (
     <button
+      type="button"
       onClick={handleLogout}
       disabled={loading}
-      className="rounded-md border px-4 py-2 text-sm font-medium disabled:opacity-50"
+      className={cn(
+        "inline-flex items-center gap-2 text-[0.68rem] font-semibold tracking-[0.18em] text-ink-muted uppercase transition-colors hover:text-ink disabled:opacity-50",
+        className
+      )}
     >
-      {loading ? "Signing out..." : "Logout"}
+      {showIcon ? <LogOut aria-hidden className="size-4" /> : null}
+      {loading ? "Signing out..." : "Sign out"}
     </button>
   );
 }
