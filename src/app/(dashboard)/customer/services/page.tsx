@@ -1,4 +1,6 @@
 
+import ServiceFilters from "./service-filters";
+
 export const instant = false;
 
 type Service = {
@@ -17,16 +19,35 @@ type ServicesResponse = {
   services: Service[];
 };
 
+type PageProps = {
+  searchParams: Promise<{
+    search?: string;
+    category?: string;
+    location?: string;
+    sort?: string;
+  }>;
+};
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-async function getServices(): Promise<Service[]> {
+async function getServices(
+  filters: PageProps["searchParams"] extends Promise<infer T> ? T : never
+): Promise<Service[]> {
   if (!API_URL) {
     throw new Error("Backend API URL is not configured");
   }
 
-  const response = await fetch(`${API_URL}/api/services`, {
-    cache: "no-store",
+  const params = new URLSearchParams();
+
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value) params.set(key, value);
   });
+
+  const query = params.toString();
+  const response = await fetch(
+    `${API_URL}/api/services${query ? `?${query}` : ""}`,
+    { cache: "no-store" }
+  );
 
   if (!response.ok) {
     throw new Error("Failed to load services");
@@ -36,12 +57,16 @@ async function getServices(): Promise<Service[]> {
   return data.services;
 }
 
-export default async function CustomerServicesPage() {
+export default async function CustomerServicesPage({
+  searchParams,
+}: PageProps) {
+  const filters = await searchParams;
+
   let services: Service[] = [];
   let error = "";
 
   try {
-    services = await getServices();
+    services = await getServices(filters);
   } catch (err) {
     error =
       err instanceof Error ? err.message : "Something went wrong";
@@ -54,9 +79,9 @@ export default async function CustomerServicesPage() {
         Find the right wedding services for your special day.
       </p>
 
-      {error && (
-        <p className="mt-6 text-red-500">{error}</p>
-      )}
+      <ServiceFilters />
+
+      {error && <p className="mt-6 text-red-500">{error}</p>}
 
       {!error && services.length === 0 && (
         <p className="mt-6">No active services found.</p>
@@ -80,15 +105,10 @@ export default async function CustomerServicesPage() {
               <h2 className="text-lg font-semibold">
                 {service.serviceName}
               </h2>
-
               <p className="text-sm text-gray-500">
                 {service.category} · {service.location}
               </p>
-
-              <p className="text-sm">
-                {service.description}
-              </p>
-
+              <p className="text-sm">{service.description}</p>
               <p className="font-bold">
                 ৳{service.price.toLocaleString("en-BD")}
               </p>
