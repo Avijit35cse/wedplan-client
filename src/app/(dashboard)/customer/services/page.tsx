@@ -1,5 +1,6 @@
 
 import ServiceFilters from "./service-filters";
+import BookingForm from "./booking-form";
 
 export const instant = false;
 
@@ -31,7 +32,12 @@ type PageProps = {
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 async function getServices(
-  filters: PageProps["searchParams"] extends Promise<infer T> ? T : never
+  filters: {
+    search?: string;
+    category?: string;
+    location?: string;
+    sort?: string;
+  }
 ): Promise<Service[]> {
   if (!API_URL) {
     throw new Error("Backend API URL is not configured");
@@ -44,6 +50,7 @@ async function getServices(
   });
 
   const query = params.toString();
+
   const response = await fetch(
     `${API_URL}/api/services${query ? `?${query}` : ""}`,
     { cache: "no-store" }
@@ -75,6 +82,7 @@ export default async function CustomerServicesPage({
   return (
     <main className="p-8">
       <h1 className="text-2xl font-bold">Explore Services</h1>
+
       <p className="mt-2 text-gray-600">
         Find the right wedding services for your special day.
       </p>
@@ -105,13 +113,18 @@ export default async function CustomerServicesPage({
               <h2 className="text-lg font-semibold">
                 {service.serviceName}
               </h2>
+
               <p className="text-sm text-gray-500">
                 {service.category} · {service.location}
               </p>
+
               <p className="text-sm">{service.description}</p>
+
               <p className="font-bold">
                 ৳{service.price.toLocaleString("en-BD")}
               </p>
+
+              <BookingForm serviceId={service._id} />
             </div>
           </article>
         ))}
