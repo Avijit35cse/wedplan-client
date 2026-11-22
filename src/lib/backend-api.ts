@@ -20,12 +20,16 @@ export async function backendFetch<T>(
     throw new Error("Authentication token not found");
   }
 
+  const isFormData = options.body instanceof FormData;
+
   const response = await fetch(`${API_URL}${path}`, {
     ...options,
     headers: {
       ...options.headers,
       Authorization: `Bearer ${result.token}`,
-      ...(options.body ? { "Content-Type": "application/json" } : {}),
+      ...(options.body && !isFormData
+        ? { "Content-Type": "application/json" }
+        : {}),
     },
     cache: "no-store",
   });
