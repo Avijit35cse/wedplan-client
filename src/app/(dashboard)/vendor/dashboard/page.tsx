@@ -1,7 +1,7 @@
-
-import LogoutButton from "@/components/auth/logout-button";
+﻿import LogoutButton from "@/components/auth/logout-button";
 import { requireRole } from "@/lib/require-role";
 import { backendFetch } from "@/lib/backend-api";
+import { createCheckoutSession } from "./subscription-actions";
 
 export const instant = false;
 
@@ -51,6 +51,15 @@ export default async function VendorDashboard() {
       {apiError && (
         <p className="mt-2 text-red-500">{apiError}</p>
       )}
+
+      <form action={createCheckoutSession} className="mt-6">
+        <button
+          type="submit"
+          className="rounded-lg bg-purple-600 px-5 py-3 font-semibold text-white hover:bg-purple-700"
+        >
+          Upgrade to Premium
+        </button>
+      </form>
 
       <div className="mt-4">
         <LogoutButton />
