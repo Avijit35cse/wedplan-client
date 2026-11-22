@@ -1,12 +1,42 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
+
 import Wordmark from "@/components/layout/wordmark";
 import LogoutButton from "@/components/auth/logout-button";
 import { publicNav, roleHome, type NavUser } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
+
+function SiteUserAvatar({ user }: { user: NavUser }) {
+  const initials =
+    user.name
+      ?.trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((part) => part.charAt(0).toUpperCase())
+      .join("") || "U";
+
+  return (
+    <div className="relative flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-champagne bg-cream text-sm font-semibold text-ink">
+      {user.image ? (
+        <Image
+          src={user.image}
+          alt={`${user.name}'s profile`}
+          fill
+          sizes="40px"
+          unoptimized
+          className="object-cover"
+        />
+      ) : (
+        initials
+      )}
+    </div>
+  );
+}
 
 export default function SiteHeader({
   user = null,
@@ -81,22 +111,33 @@ export default function SiteHeader({
           ))}
         </nav>
 
-        <div className="hidden items-center gap-6 lg:flex">
+        <div className="hidden items-center gap-5 lg:flex">
           {user ? (
             <>
               <Link
                 href={roleHome(user.role)}
                 className={cn(
-                  "text-[0.68rem] font-semibold tracking-[0.2em] uppercase transition-colors",
+                  "flex items-center gap-3 transition-colors",
                   overlay
                     ? "text-ivory/80 hover:text-ivory"
                     : "text-ink-muted hover:text-ink"
                 )}
               >
-                Dashboard
+                <SiteUserAvatar user={user} />
+                <span className="flex flex-col text-left leading-tight">
+                  <span className="max-w-32 truncate text-sm font-medium">
+                    {user.name}
+                  </span>
+                  <span className="mt-1 text-[0.58rem] font-semibold tracking-[0.16em] uppercase">
+                    Dashboard
+                  </span>
+                </span>
               </Link>
+
               <LogoutButton
-                className={overlay ? "text-ivory/70 hover:text-ivory" : undefined}
+                className={
+                  overlay ? "text-ivory/70 hover:text-ivory" : undefined
+                }
               />
             </>
           ) : (
@@ -151,6 +192,20 @@ export default function SiteHeader({
           id="site-mobile-nav"
           className="fixed inset-x-0 top-20 bottom-0 z-40 overflow-y-auto border-t border-line bg-ivory px-5 pt-8 pb-10 text-ink lg:hidden"
         >
+          {user ? (
+            <div className="mb-6 flex items-center gap-3 border-b border-line pb-6">
+              <SiteUserAvatar user={user} />
+              <div className="min-w-0">
+                <p className="truncate text-sm font-semibold text-ink">
+                  {user.name}
+                </p>
+                <p className="mt-1 text-[0.6rem] font-semibold tracking-[0.16em] text-gold uppercase">
+                  {user.role}
+                </p>
+              </div>
+            </div>
+          ) : null}
+
           <nav aria-label="Mobile" className="flex flex-col">
             {publicNav.map((item) => (
               <Link

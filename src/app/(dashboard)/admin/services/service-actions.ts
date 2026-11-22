@@ -25,9 +25,7 @@ export async function updateServiceStatus(
       }
     );
 
-    revalidatePath("/admin/services");
-    revalidatePath("/admin/dashboard");
-    revalidatePath("/customer/services");
+    revalidateServicePages();
 
     return {
       success: result.success,
@@ -40,4 +38,70 @@ export async function updateServiceStatus(
         error instanceof Error ? error.message : "Failed to update service",
     };
   }
+}
+
+export async function changeServiceStatus(
+  serviceId: string,
+  status: "active" | "pending" | "rejected"
+) {
+  if (!serviceId) {
+    return { success: false, message: "Invalid service ID" };
+  }
+
+  try {
+    const result = await backendFetch<ServiceActionResponse>(
+      `/api/admin/services/${serviceId}/status`,
+      {
+        method: "PATCH",
+        body: JSON.stringify({ status }),
+      }
+    );
+
+    revalidateServicePages();
+
+    return {
+      success: result.success,
+      message: result.message,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message:
+        error instanceof Error ? error.message : "Failed to change service status",
+    };
+  }
+}
+
+export async function deleteAdminService(serviceId: string) {
+  if (!serviceId) {
+    return { success: false, message: "Invalid service ID" };
+  }
+
+  try {
+    const result = await backendFetch<ServiceActionResponse>(
+      `/api/admin/services/${serviceId}`,
+      {
+        method: "DELETE",
+      }
+    );
+
+    revalidateServicePages();
+
+    return {
+      success: result.success,
+      message: result.message,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message:
+        error instanceof Error ? error.message : "Failed to delete service",
+    };
+  }
+}
+
+function revalidateServicePages() {
+  revalidatePath("/admin/services");
+  revalidatePath("/admin/dashboard");
+  revalidatePath("/customer/services");
 }

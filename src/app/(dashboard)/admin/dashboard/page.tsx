@@ -11,6 +11,7 @@ import {
   Clock3,
   XCircle,
   CalendarDays,
+  CreditCard,
   ArrowUpRight,
   ShieldCheck,
   AlertCircle,
@@ -29,6 +30,7 @@ type StatsResponse = {
     pendingServices: number;
     rejectedServices: number;
     totalBookings: number;
+    totalTransactions: number;
   };
 };
 
@@ -97,6 +99,12 @@ export default async function AdminDashboard() {
           icon: CalendarDays,
           description: "Platform booking requests",
         },
+        {
+          label: "Total Transactions",
+          value: stats.totalTransactions,
+          icon: CreditCard,
+          description: "Recorded payment transactions",
+        },
       ]
     : [];
 
@@ -140,11 +148,13 @@ export default async function AdminDashboard() {
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gold">
                 Platform overview
               </p>
+
               <h2 className="mt-2 font-serif text-3xl text-ink">
                 Platform Statistics
               </h2>
+
               <p className="mt-2 text-sm text-ink-muted">
-                An overview of users, services and booking activity.
+                An overview of users, services, bookings and transactions.
               </p>
             </div>
 
@@ -222,6 +232,7 @@ export default async function AdminDashboard() {
 
             <div className="mt-6 flex items-center gap-3 rounded-xl bg-cream/60 p-4">
               <Clock3 size={20} className="shrink-0 text-gold" />
+
               <p className="text-sm text-ink-muted">
                 <span className="font-semibold text-ink">
                   {stats.pendingServices.toLocaleString("en-BD")}

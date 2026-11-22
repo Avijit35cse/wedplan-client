@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState, type ChangeEvent, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -13,10 +13,14 @@ import {
   LockKeyhole,
   Heart,
   BriefcaseBusiness,
+  Camera,
+  X,
 } from "lucide-react";
+import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
 import GoogleAuthButton from "@/components/auth/google-auth-button";
 import { homeImages } from "@/lib/images";
+import { uploadServiceImage } from "@/app/(dashboard)/vendor/add-service/service-actions";
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -25,26 +29,93 @@ export default function SignUpPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState<"customer" | "vendor">("customer");
+  const [profileImage, setProfileImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setError("Please select a valid image file.");
+      e.target.value = "";
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setError("Profile image must be smaller than 5MB.");
+      e.target.value = "";
+      return;
+    }
+
+    setError("");
+    setProfileImage(file);
+    setImagePreview(URL.createObjectURL(file));
+  };
+
+  const removeProfileImage = () => {
+    if (imagePreview) {
+      URL.revokeObjectURL(imagePreview);
+    }
+
+    setProfileImage(null);
+    setImagePreview("");
+  };
 
   const handleSignUp = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
+
+    if (!/^(?=.*[a-z])(?=.*[A-Z]).{8,}$/.test(password)) {
+      setError(
+        "Password must contain at least 8 characters, including one uppercase and one lowercase letter."
+      );
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const { error } = await authClient.signUp.email({
-        name,
-        email,
+      const { error: signUpError } = await authClient.signUp.email({
+        name: name.trim(),
+        email: email.trim(),
         password,
         role,
         callbackURL: "/",
       });
 
-      if (error) {
-        setError(error.message ?? "Unable to create account. Please try again.");
+      if (signUpError) {
+        setError(
+          signUpError.message ?? "Unable to create account. Please try again."
+        );
         return;
+      }
+
+      // Profile image is optional. Upload only after account creation.
+      if (profileImage) {
+        const formData = new FormData();
+        formData.append("image", profileImage);
+
+        const uploadResult = await uploadServiceImage(formData);
+
+        if (uploadResult.success && uploadResult.imageUrl) {
+          const { error: updateError } = await authClient.updateUser({
+            image: uploadResult.imageUrl,
+          });
+
+          if (updateError) {
+            toast.error(
+              "Account created, but the profile image could not be saved."
+            );
+          }
+        } else {
+          toast.error(
+            "Account created, but the profile image upload failed."
+          );
+        }
       }
 
       router.push("/");
@@ -143,6 +214,65 @@ export default function SignUpPage() {
           </div>
 
           <form onSubmit={handleSignUp} className="space-y-5">
+            {/* Profile image */}
+            <div>
+              <label className="mb-2 block text-xs font-semibold tracking-wider text-ink uppercase">
+                Profile photo{" "}
+                <span className="font-normal text-ink-muted normal-case">
+                  (Optional)
+                </span>
+              </label>
+
+              <div className="flex items-center gap-4">
+                <div className="relative flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-full border border-line bg-white">
+                  {imagePreview ? (
+                    <Image
+                      src={imagePreview}
+                      alt="Profile preview"
+                      fill
+                      unoptimized
+                      className="object-cover"
+                    />
+                  ) : (
+                    <UserRound className="size-7 text-ink-muted/50" />
+                  )}
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  <label
+                    htmlFor="profileImage"
+                    className="inline-flex h-10 cursor-pointer items-center gap-2 border border-line bg-white px-4 text-xs font-semibold text-ink transition-colors hover:border-gold"
+                  >
+                    <Camera className="size-4" />
+                    Choose photo
+                  </label>
+
+                  {imagePreview && (
+                    <button
+                      type="button"
+                      onClick={removeProfileImage}
+                      className="inline-flex h-10 items-center gap-1 px-3 text-xs font-medium text-red-600 hover:bg-red-50"
+                    >
+                      <X className="size-4" />
+                      Remove
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <input
+                id="profileImage"
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="sr-only"
+              />
+
+              <p className="mt-2 text-[0.7rem] text-ink-muted">
+                JPG, PNG or other image formats. Maximum 5MB.
+              </p>
+            </div>
+
             {/* Name */}
             <div>
               <label
@@ -214,8 +344,10 @@ export default function SignUpPage() {
                   className="h-12 w-full border border-line bg-white/70 pr-4 pl-11 text-sm text-ink outline-none transition-all placeholder:text-ink-muted/45 focus:border-gold focus:bg-white"
                 />
               </div>
-              <p className="mt-2 text-[0.7rem] text-ink-muted">
-                Use at least 8 characters for your password.
+
+              <p className="mt-2 text-[0.7rem] leading-5 text-ink-muted">
+                At least 8 characters, including one uppercase and one
+                lowercase letter.
               </p>
             </div>
 

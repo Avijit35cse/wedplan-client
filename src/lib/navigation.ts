@@ -1,3 +1,4 @@
+
 export type AppRole = "customer" | "vendor" | "admin";
 
 export type NavUser = {
@@ -33,9 +34,11 @@ export const roleNav: Record<AppRole, { label: string; href: string }[]> = {
     { label: "Add service", href: "/vendor/add-service" },
     { label: "Booking requests", href: "/vendor/booking-requests" },
   ],
-  admin: [
+    admin: [
     { label: "Dashboard", href: "/admin/dashboard" },
+    { label: "Manage users", href: "/admin/users" },
     { label: "Service moderation", href: "/admin/services" },
+    { label: "Transactions", href: "/admin/transactions" },
   ],
 };
 
