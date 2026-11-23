@@ -7,7 +7,11 @@ import { MapPin, Search, SlidersHorizontal, Tags } from "lucide-react";
 const fieldClass =
   "h-12 w-full rounded-xl border border-line bg-white px-4 text-sm text-ink outline-none transition placeholder:text-ink-muted/60 focus:border-gold focus:ring-2 focus:ring-gold/10";
 
-export default function ServiceFilters() {
+export default function ServiceFilters({
+  basePath = "/customer/services",
+}: {
+  basePath?: string;
+}) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -21,7 +25,7 @@ export default function ServiceFilters() {
     }
 
     const query = params.toString();
-    router.push(`/customer/services${query ? `?${query}` : ""}`);
+    router.push(`${basePath}${query ? `?${query}` : ""}`);
   }
 
   return (

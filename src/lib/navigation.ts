@@ -13,7 +13,7 @@ export type NavUser = {
  * Phase 4 introduces the public /services route; until then the existing
  * customer browse page keeps every link working.
  */
-export const SERVICES_HREF = "/customer/services";
+export const SERVICES_HREF = "/services";
 
 export const publicNav = [
   { label: "Home", href: "/" },
