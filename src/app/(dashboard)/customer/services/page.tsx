@@ -1,5 +1,6 @@
 
 import { Suspense } from "react";
+import Link from "next/link";
 import { Search, SlidersHorizontal, MapPin, Sparkles } from "lucide-react";
 import ServiceFilters from "./service-filters";
 import BookingForm from "./booking-form";
@@ -198,7 +199,14 @@ export default async function CustomerServicesPage({
                                             </span>
                                         </div>
 
-                                        <details className="group/booking mt-5">
+                                        <Link
+                                            href={`/customer/services/${service._id}`}
+                                            className="mt-5 flex items-center justify-center rounded-full border border-ink px-5 py-3 text-xs font-semibold tracking-[0.12em] text-ink uppercase transition-colors hover:bg-ink hover:text-white"
+                                        >
+                                            View Details
+                                        </Link>
+
+                                        <details className="group/booking mt-4">
                                             <summary className="flex cursor-pointer list-none items-center justify-center gap-2 rounded-full bg-ink px-5 py-3 text-xs font-semibold tracking-[0.12em] text-white uppercase transition-colors hover:bg-rose [&::-webkit-details-marker]:hidden">
                                                 <Search className="size-3.5" />
                                                 Request booking
