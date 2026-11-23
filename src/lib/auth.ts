@@ -4,37 +4,39 @@ import { mongodbAdapter } from "@better-auth/mongo-adapter";
 import { client, db } from "./mongodb";
 import { jwt } from "better-auth/plugins";
 
-
 export const auth = betterAuth({
-    database: mongodbAdapter(db, {
-        client,
-    }),
+  database: mongodbAdapter(db, {
+    client,
+  }),
 
-    emailAndPassword: {
-        enabled: true,
+  emailAndPassword: {
+    enabled: true,
+  },
+
+  socialProviders: {
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     },
+  },
 
-    socialProviders: {
-        google: {
-            clientId: process.env.GOOGLE_CLIENT_ID!,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-        },
+  user: {
+    additionalFields: {
+      role: {
+        type: ["customer", "vendor"],
+        required: false,
+        defaultValue: "customer",
+        input: true,
+      },
     },
+  },
 
-    user: {
-        additionalFields: {
-            role: {
-                type: ["customer", "vendor"],
-                required: false,
-                defaultValue: "customer",
-                input: true,
-            },
-        },
-    },
+  trustedOrigins: [
+    "http://localhost:3000",
+    "https://wedplan-client-avijit.vercel.app",
+  ],
 
-    trustedOrigins: ["http://localhost:3000"],
-
-    plugins: [
+  plugins: [
     jwt({
       jwt: {
         definePayload: ({ user }) => ({
